@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Master Plan — Josh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:#0a1628; --navy2:#0f2044; --blue:#1d4ed8; --blue-l:#3b82f6;
+    --teal:#0d9488; --teal-l:#14b8a6; --gold:#d97706; --gold-l:#f59e0b;
+    --purple:#7c3aed; --purple-l:#a78bfa; --green:#059669; --red:#dc2626;
+    --bg:#060d1a; --bg2:#0d1829; --bg3:#111f35;
+    --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+    --text:#e2e8f0; --text2:#94a3b8; --text3:#64748b;
+    --font-display:'Syne',sans-serif; --font-body:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+    --r:10px; --r2:16px; --shadow:0 4px 24px rgba(0,0,0,0.4);
+  }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); font-size:15px; line-height:1.6; min-height:100vh; }
+  body::before {
+    content:''; position:fixed; inset:0; z-index:0;
+    background: radial-gradient(ellipse 80% 60% at 10% 0%,rgba(29,78,216,0.12) 0%,transparent 60%),
+                radial-gradient(ellipse 60% 40% at 90% 100%,rgba(13,148,136,0.08) 0%,transparent 50%),
+                radial-gradient(ellipse 40% 30% at 80% 20%,rgba(124,58,237,0.06) 0%,transparent 40%);
+    pointer-events:none;
+  }
+
+  /* LOGIN */
+  #loginScreen { position:fixed; inset:0; z-index:999; background:var(--bg); display:flex; align-items:center; justify-content:center; }
+  #loginScreen::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(29,78,216,0.15) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 90% 100%,rgba(13,148,136,0.1) 0%,transparent 50%); pointer-events:none; }
+  .login-card { background:var(--bg2); border:1px solid var(--border2); border-radius:20px; padding:48px 40px; width:380px; box-shadow:0 24px 64px rgba(0,0,0,0.5); position:relative; z-index:1; text-align:center; }
+  .login-logo { font-family:var(--font-display); font-weight:800; font-size:24px; margin-bottom:6px; color:var(--text); }
+  .login-logo span { color:var(--blue-l); }
+  .login-sub { font-size:13px; color:var(--text3); margin-bottom:32px; }
+  .login-label { font-size:13px; color:var(--text2); text-align:left; margin-bottom:8px; display:block; }
+  .login-input { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:10px; padding:12px 16px; color:var(--text); font-family:var(--font-body); font-size:15px; margin-bottom:16px; outline:none; transition:border-color 0.15s; }
+  .login-input:focus { border-color:var(--blue-l); }
+  .login-btn { width:100%; background:var(--blue); color:white; border:none; border-radius:10px; padding:13px; font-family:var(--font-body); font-size:15px; font-weight:600; cursor:pointer; transition:background 0.15s; }
+  .login-btn:hover { background:#2563eb; }
+  .login-error { color:#fca5a5; font-size:13px; margin-top:10px; display:none; }
+
+  /* APP */
+  .app { position:relative; z-index:1; }
+  .nav { position:sticky; top:0; z-index:100; background:rgba(6,13,26,0.85); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:60px; }
+  .nav-brand { font-family:var(--font-display); font-weight:800; font-size:18px; color:var(--text); letter-spacing:-0.02em; }
+  .nav-brand span { color:var(--blue-l); }
+  .nav-tabs { display:flex; gap:4px; }
+  .nav-tab { padding:6px 16px; border-radius:6px; border:none; background:transparent; color:var(--text2); font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer; transition:all 0.15s; }
+  .nav-tab:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+  .nav-tab.active { background:rgba(29,78,216,0.2); color:var(--blue-l); }
+  .nav-date { font-family:var(--font-mono); font-size:12px; color:var(--text3); }
+
+  .view { display:none; padding:32px; max-width:1200px; margin:0 auto; }
+  .view.active { display:block; }
+  .hero { display:grid; grid-template-columns:1fr auto; gap:32px; align-items:start; margin-bottom:32px; }
+  .hero-title { font-family:var(--font-display); font-weight:800; font-size:clamp(28px,4vw,44px); letter-spacing:-0.03em; line-height:1.1; }
+  .hero-title .accent { color:var(--blue-l); }
+  .hero-sub { margin-top:8px; font-size:15px; color:var(--text2); font-weight:300; }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+  .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r2); padding:20px; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent,var(--blue)); }
+  .stat-label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+  .stat-value { font-family:var(--font-display); font-size:36px; font-weight:800; color:var(--text); line-height:1; }
+  .stat-sub { font-size:12px; color:var(--text2); margin-top:4px; }
+
+  /* OVERALL */
+  .overall-progress { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r2); padding:24px; margin-bottom:32px; }
+  .overall-progress-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+  .overall-progress-label { font-family:var(--font-display); font-weight:700; font-size:16px; }
+  .overall-pct { font-family:var(--font-mono); font-size:28px; font-weight:500; color:var(--blue-l); }
+  .progress-track { height:10px; background:rgba(255,255,255,0.06); border-radius:99px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:99px; transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1); position:relative; }
+  .progress-fill::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); animation:shimmer 2s infinite; }
+  @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+  /* WEEK FOCUS */
+  .week-panel { background:linear-gradient(135deg,rgba(29,78,216,0.15),rgba(13,148,136,0.08)); border:1px solid rgba(29,78,216,0.3); border-radius:var(--r2); padding:24px; margin-bottom:20px; position:relative; overflow:hidden; }
+  .week-panel::before { content:''; position:absolute; top:-40px; right:-40px; width:120px; height:120px; border-radius:50%; background:rgba(29,78,216,0.08); pointer-events:none; }
+  .week-panel-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .week-panel-icon { width:36px; height:36px; background:var(--blue); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .week-panel-title { font-family:var(--font-display); font-weight:700; font-size:20px; }
+  .week-panel-sub { font-size:12px; color:var(--text2); margin-top:1px; }
+  .week-items { display:grid; gap:10px; }
+  .week-item { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--r); padding:14px 16px; display:grid; grid-template-columns:auto auto 1fr auto; gap:12px; align-items:center; transition:opacity 0.2s; }
+  .week-item.week-done { opacity:0.5; }
+  .week-item.week-done .week-item-title { text-decoration:line-through; color:var(--text3); }
+  .week-item.week-done .week-item-detail { text-decoration:line-through; }
+  .week-check { width:18px; height:18px; border-radius:4px; border:2px solid rgba(255,255,255,0.2); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; position:relative; }
+  .week-check:hover { border-color:var(--blue-l); }
+  .week-check.checked { background:var(--green); border-color:var(--green); }
+  .week-check.checked::after { content:'✓'; color:white; font-size:11px; font-weight:700; }
+  .week-item-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .week-item-title { font-weight:500; font-size:14px; color:var(--text); }
+  .week-item-detail { font-size:12px; color:var(--text2); margin-top:2px; }
+  .week-item-target { background:rgba(255,255,255,0.06); border-radius:6px; padding:4px 10px; font-family:var(--font-mono); font-size:11px; color:var(--text2); white-space:nowrap; }
+  .week-end-goal { margin-top:16px; padding:12px 16px; background:rgba(5,150,105,0.12); border:1px solid rgba(5,150,105,0.25); border-radius:var(--r); font-size:13px; color:#6ee7b7; }
+  .week-end-goal strong { color:#34d399; font-weight:600; }
+
+  /* NEXT TASKS */
+  .next-panel { background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:var(--r2); padding:24px; margin-bottom:32px; }
+  .next-panel-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .next-panel-icon { width:36px; height:36px; background:var(--purple); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .next-panel-title { font-family:var(--font-display); font-weight:700; font-size:18px; }
+  .next-panel-sub { font-size:12px; color:var(--text2); margin-top:1px; }
+  .next-items { display:grid; gap:8px; }
+  .next-item { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:var(--r); padding:12px 16px; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; }
+  .next-item-num { font-family:var(--font-mono); font-size:11px; color:var(--purple-l); background:rgba(124,58,237,0.2); border-radius:4px; padding:2px 7px; font-weight:600; white-space:nowrap; }
+  .next-item-name { font-size:13px; color:var(--text); font-weight:500; }
+  .next-item-source { font-size:11px; color:var(--text3); margin-top:1px; }
+  .next-item-hours { font-family:var(--font-mono); font-size:11px; color:var(--text3); white-space:nowrap; }
+  .next-quick-badge { font-size:9px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; background:rgba(245,158,11,0.2); color:var(--gold-l); padding:2px 6px; border-radius:3px; margin-left:6px; }
+
+  /* PHASES */
+  .phase-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r2); overflow:hidden; transition:border-color 0.2s; margin-bottom:20px; }
+  .phase-card.current { border-color:rgba(29,78,216,0.5); }
+  .phase-card.complete { border-color:rgba(5,150,105,0.4); }
+  .phase-header { padding:18px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; user-select:none; }
+  .phase-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:15px; flex-shrink:0; }
+  .phase-meta { flex:1; }
+  .phase-name { font-family:var(--font-display); font-weight:700; font-size:17px; line-height:1.2; }
+  .phase-period { font-size:12px; color:var(--text3); font-family:var(--font-mono); margin-top:2px; }
+  .phase-right { display:flex; align-items:center; gap:16px; }
+  .phase-pct-label { font-family:var(--font-mono); font-size:20px; font-weight:500; min-width:48px; text-align:right; }
+  .phase-progress-mini { width:100px; height:6px; background:rgba(255,255,255,0.06); border-radius:99px; overflow:hidden; }
+  .phase-progress-mini-fill { height:100%; border-radius:99px; transition:width 0.5s ease; }
+  .phase-chevron { font-size:12px; color:var(--text3); transition:transform 0.2s; }
+  .phase-card.open .phase-chevron { transform:rotate(90deg); }
+  .phase-body { display:none; border-top:1px solid var(--border); }
+  .phase-card.open .phase-body { display:block; }
+
+  /* COURSES */
+  .course-list { padding:4px 0; }
+  .course-row { display:grid; grid-template-columns:48px 1fr auto; align-items:stretch; border-bottom:1px solid var(--border); transition:background 0.15s; }
+  .course-row:last-child { border-bottom:none; }
+  .course-row:hover { background:rgba(255,255,255,0.02); }
+  .course-row.completed { opacity:0.65; }
+  .course-check-cell { display:flex; align-items:center; justify-content:center; padding:14px; border-right:1px solid var(--border); }
+  .course-check { width:20px; height:20px; border-radius:5px; border:2px solid var(--border2); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; position:relative; }
+  .course-check:hover { border-color:var(--blue-l); }
+  .course-check.checked { background:var(--green); border-color:var(--green); }
+  .course-check.checked::after { content:'✓'; color:white; font-size:12px; font-weight:700; }
+  .course-info { padding:14px 16px; min-width:0; }
+  .course-name { font-weight:500; font-size:14px; color:var(--text); line-height:1.3; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .course-tag { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:2px 7px; border-radius:4px; flex-shrink:0; }
+  .tag-essential { background:rgba(5,150,105,0.2); color:#34d399; }
+  .tag-high { background:rgba(29,78,216,0.2); color:#93c5fd; }
+  .tag-done { background:rgba(255,255,255,0.08); color:var(--text3); }
+  .course-source { font-size:12px; color:var(--text3); margin-top:3px; }
+  .course-right { padding:14px 16px; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; }
+  .course-hours { font-family:var(--font-mono); font-size:12px; color:var(--text2); white-space:nowrap; }
+  .course-completed-date { font-family:var(--font-mono); font-size:10px; color:var(--green); }
+
+  /* PROJECTS */
+  .project-row { display:grid; grid-template-columns:48px 1fr auto; align-items:stretch; border-bottom:1px solid var(--border); transition:background 0.15s; background:rgba(13,148,136,0.03); }
+  .project-row:last-child { border-bottom:none; }
+  .project-row:hover { background:rgba(13,148,136,0.06); }
+  .project-row.completed { opacity:0.6; }
+  .project-check-cell { display:flex; align-items:center; justify-content:center; padding:14px; border-right:1px solid var(--border); }
+  .project-check { width:20px; height:20px; border-radius:50%; border:2px solid rgba(13,148,136,0.4); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+  .project-check:hover { border-color:var(--teal-l); }
+  .project-check.checked { background:var(--teal); border-color:var(--teal); }
+  .project-check.checked::after { content:'✓'; color:white; font-size:11px; font-weight:700; }
+  .project-info { padding:14px 16px; min-width:0; }
+  .project-name { font-weight:500; font-size:14px; color:#99f6e4; line-height:1.3; }
+  .project-repo { font-family:var(--font-mono); font-size:11px; color:var(--teal-l); margin-top:3px; opacity:0.7; }
+  .project-desc { font-size:12px; color:var(--text2); margin-top:4px; line-height:1.5; }
+  .project-when { font-size:11px; color:var(--gold-l); margin-top:5px; font-weight:500; }
+  .project-when::before { content:'⏱ Start after: '; }
+
+  .section-label { font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); padding:10px 20px 6px; background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border); }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--bg2); border:1px solid var(--border2); border-radius:var(--r2); padding:28px; width:320px; box-shadow:var(--shadow); }
+  .modal-title { font-family:var(--font-display); font-weight:700; font-size:18px; margin-bottom:16px; }
+  .modal-label { font-size:13px; color:var(--text2); margin-bottom:8px; }
+  .modal input[type="date"] { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--r); padding:10px 12px; color:var(--text); font-family:var(--font-body); font-size:14px; margin-bottom:16px; }
+  .modal-btns { display:flex; gap:10px; justify-content:flex-end; }
+  .btn { padding:9px 18px; border-radius:7px; border:none; font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer; transition:all 0.15s; }
+  .btn-primary { background:var(--blue); color:white; }
+  .btn-primary:hover { background:#2563eb; }
+  .btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border2); }
+  .btn-ghost:hover { background:rgba(255,255,255,0.05); }
+
+  /* BLUEPRINT */
+  .blueprint { max-width:860px; }
+  .bp-section { margin-bottom:48px; }
+  .bp-section-title { font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:-0.02em; margin-bottom:8px; padding-bottom:12px; border-bottom:1px solid var(--border2); }
+  .bp-intro { font-size:15px; color:var(--text2); margin-bottom:24px; line-height:1.7; }
+  .bp-pillar { border-left:3px solid; padding:16px 20px; background:rgba(255,255,255,0.02); border-radius:0 var(--r) var(--r) 0; margin-bottom:12px; }
+  .bp-pillar-title { font-weight:600; font-size:15px; margin-bottom:4px; }
+  .bp-pillar-desc { font-size:13px; color:var(--text2); line-height:1.6; }
+  .bp-phase-block { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r2); padding:20px; margin-bottom:12px; }
+  .bp-phase-title { font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:12px; }
+  .bp-list { list-style:none; display:grid; gap:6px; }
+  .bp-list li { font-size:14px; color:var(--text2); padding-left:18px; position:relative; line-height:1.5; }
+  .bp-list li::before { content:'→'; position:absolute; left:0; color:var(--text3); font-size:12px; }
+  .bp-table { width:100%; border-collapse:collapse; margin-top:16px; }
+  .bp-table th { text-align:left; padding:10px 14px; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text3); border-bottom:1px solid var(--border2); }
+  .bp-table td { padding:12px 14px; font-size:13px; color:var(--text2); border-bottom:1px solid var(--border); vertical-align:top; }
+  .bp-table tr:last-child td { border-bottom:none; }
+  .bp-table td:first-child { font-weight:500; color:var(--text); font-family:var(--font-mono); font-size:12px; white-space:nowrap; }
+  .bp-callout { background:rgba(29,78,216,0.1); border:1px solid rgba(29,78,216,0.25); border-radius:var(--r); padding:16px 20px; font-size:14px; color:var(--text2); margin-top:16px; line-height:1.6; }
+  .bp-callout strong { color:var(--blue-l); }
+
+  /* SETTINGS */
+  .settings-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r2); padding:24px; margin-bottom:20px; }
+  .settings-title { font-family:var(--font-display); font-weight:700; font-size:17px; margin-bottom:16px; }
+  .settings-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+  .settings-row:last-child { border-bottom:none; }
+  .settings-row-label { font-size:14px; }
+  .settings-row-sub { font-size:12px; color:var(--text3); margin-top:2px; }
+  .github-instructions { background:var(--bg3); border-radius:var(--r); padding:16px 20px; font-family:var(--font-mono); font-size:13px; color:var(--text2); line-height:1.8; white-space:pre-wrap; }
+  .github-instructions .cmd { color:var(--blue-l); }
+  .github-instructions .comment { color:var(--text3); }
+  .reset-btn { background:rgba(220,38,38,0.15); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); border-radius:7px; padding:8px 16px; font-family:var(--font-body); font-size:14px; cursor:pointer; transition:all 0.15s; }
+  .reset-btn:hover { background:rgba(220,38,38,0.25); }
+
+  @media (max-width:768px) {
+    .nav { padding:0 16px; } .view { padding:20px 16px; }
+    .stats-row { grid-template-columns:repeat(2,1fr); } .hero { grid-template-columns:1fr; }
+    .week-item { grid-template-columns:auto auto 1fr; } .week-item-target { display:none; }
+    .course-right { display:none; } .nav-date { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">The <span>Master Plan</span></div>
+    <div class="login-sub">Josh's private learning roadmap</div>
+    <label class="login-label">Password</label>
+    <input class="login-input" type="password" id="loginInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<div class="app" id="mainApp" style="display:none">
+  <nav class="nav">
+    <div class="nav-brand">The <span>Master Plan</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('dashboard',this)">Dashboard</button>
+      <button class="nav-tab" onclick="showView('courses',this)">All Courses</button>
+      <button class="nav-tab" onclick="showView('blueprint',this)">Blueprint</button>
+      <button class="nav-tab" onclick="showView('settings',this)">Settings</button>
+    </div>
+    <div class="nav-date" id="navDate"></div>
+  </nav>
+
+  <div class="modal-overlay" id="dateModal">
+    <div class="modal">
+      <div class="modal-title">Mark Complete</div>
+      <div class="modal-label">When did you complete this?</div>
+      <input type="date" id="modalDate">
+      <div class="modal-btns">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmComplete()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="view active" id="view-dashboard">
+    <div class="hero">
+      <div>
+        <div class="hero-title">Good <span class="accent" id="timeGreeting"></span>, Josh.</div>
+        <div class="hero-sub">Finance · Data · AI · Code — your path to Valencia and beyond.</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card" style="--accent:var(--blue)"><div class="stat-label">Courses Done</div><div class="stat-value" id="stat-courses">0</div><div class="stat-sub" id="stat-courses-sub">of 27 total</div></div>
+      <div class="stat-card" style="--accent:var(--teal)"><div class="stat-label">Projects Built</div><div class="stat-value" id="stat-projects">0</div><div class="stat-sub">of 12 total</div></div>
+      <div class="stat-card" style="--accent:var(--purple)"><div class="stat-label">Current Phase</div><div class="stat-value" id="stat-phase" style="font-size:18px;margin-top:6px">—</div><div class="stat-sub" id="stat-phase-sub">—</div></div>
+      <div class="stat-card" style="--accent:var(--gold)"><div class="stat-label">CIMA Level</div><div class="stat-value" id="stat-cima" style="font-size:14px;margin-top:10px">CertBA</div><div class="stat-sub">Select in Settings</div></div>
+    </div>
+    <div class="overall-progress">
+      <div class="overall-progress-header"><span class="overall-progress-label">Overall Roadmap Progress</span><span class="overall-pct" id="overallPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="overallBar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--teal))"></div></div>
+    </div>
+    <div class="week-panel">
+      <div class="week-panel-header">
+        <div class="week-panel-icon">🎯</div>
+        <div><div class="week-panel-title">This Week's Focus</div><div class="week-panel-sub" id="weekSubLabel">Auto-calculated from your progress</div></div>
+      </div>
+      <div class="week-items" id="weekItems"></div>
+      <div class="week-end-goal" id="weekEndGoal"></div>
+    </div>
+    <div class="next-panel">
+      <div class="next-panel-header">
+        <div class="next-panel-icon">⚡</div>
+        <div><div class="next-panel-title">Up Next — In Order</div><div class="next-panel-sub">Next 5 items in your optimal sequence. Quick wins flagged in gold.</div></div>
+      </div>
+      <div class="next-items" id="nextItems"></div>
+    </div>
+    <div id="dashPhases"></div>
+  </div>
+
+  <div class="view" id="view-courses">
+    <div class="hero"><div><div class="hero-title">All <span class="accent">Courses & Projects</span></div><div class="hero-sub">Every item in the roadmap. Check off as you complete them.</div></div></div>
+    <div id="allPhases"></div>
+  </div>
+
+  <div class="view blueprint" id="view-blueprint">
+    <div class="hero"><div><div class="hero-title">The <span class="accent">Blueprint</span></div><div class="hero-sub">The full strategic plan. Read it, revisit it, stay anchored.</div></div></div>
+    <div id="blueprintContent"></div>
+  </div>
+
+  <div class="view" id="view-settings">
+    <div class="hero"><div><div class="hero-title"><span class="accent">Settings</span></div><div class="hero-sub">GitHub setup, CIMA progress, and data management.</div></div></div>
+    <div class="settings-card">
+      <div class="settings-title">🐙 Deploy to GitHub Pages</div>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.7">This tracker lives at <strong>yourusername.github.io/master-plan</strong>. Progress saves in your browser. Password protected.</p>
+      <div class="github-instructions"><span class="comment"># One-time setup:</span>
+
+<span class="cmd">1.</span> Create a GitHub repo called <span class="cmd">master-plan</span> (public)
+<span class="cmd">2.</span> Settings → Pages → Deploy from branch → main → / (root)
+<span class="cmd">3.</span> Download this file (Save As → index.html)
+<span class="cmd">4.</span> Upload index.html to your repo
+<span class="cmd">5.</span> Visit: <span class="cmd">https://yourusername.github.io/master-plan</span>
+
+<span class="comment"># Progress saves automatically in your browser.
+# To update: just replace index.html in the repo.</span></div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-title">📚 CIMA Progress</div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Current level</div><div class="settings-row-sub">Update when you pass a paper</div></div>
+        <select id="cimaSelect" onchange="saveCima()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:7px;font-family:var(--font-body);font-size:14px;cursor:pointer">
+          <option value="certba-ba2">CertBA — BA2 in progress</option>
+          <option value="certba-ba3">CertBA — BA3 in progress</option>
+          <option value="certba-ba4">CertBA — BA4 in progress</option>
+          <option value="certba-done">CertBA — Complete ✓</option>
+          <option value="op-e1">Operational — E1 in progress</option>
+          <option value="op-p1">Operational — P1 in progress</option>
+          <option value="op-f1">Operational — F1 in progress</option>
+          <option value="op-case">Operational — Case Study prep</option>
+          <option value="op-done">Operational Level — Complete ✓</option>
+          <option value="mg-e2">Management — E2 in progress</option>
+          <option value="mg-done">Management Level — Complete ✓</option>
+          <option value="st-e3">Strategic — E3 in progress</option>
+          <option value="st-done">Strategic Level — Complete ✓ (CGMA!)</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-title">⚠️ Data</div>
+      <div class="settings-row"><div><div class="settings-row-label">Reset all progress</div><div class="settings-row-sub">Clears all checkboxes. Cannot be undone.</div></div><button class="reset-btn" onclick="resetAll()">Reset Progress</button></div>
+      <div class="settings-row"><div><div class="settings-row-label">Export data</div><div class="settings-row-sub">Download progress as JSON</div></div><button class="btn btn-ghost" onclick="exportData()">Export JSON</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── LOGIN ────────────────────────────────────────
+function doLogin() {
+  if (document.getElementById('loginInput').value === 'JoshPlan1') {
+    localStorage.setItem('mp_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('loginInput').value='';
+    document.getElementById('loginInput').focus();
+  }
+}
+if (localStorage.getItem('mp_auth')==='1') {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+}
+
+// ── MASTER SEQUENCE (optimal order, unlocks respected) ───────────
+// Each item: id, label, src, hrs, quick (under 10hrs), unlocks[]
+const SEQ = [
+  // No prerequisites — start immediately
+  {id:'ai4e',    label:'AI for Everyone — Andrew Ng',           src:'Coursera / DeepLearning.AI',  hrs:'6 hrs',   quick:true,  unlocks:[]},
+  {id:'aiff',    label:'AI Fluency: Framework & Foundations',   src:'Anthropic Academy',           hrs:'3 hrs',   quick:true,  unlocks:[]},
+
+  // Available as soon as AI for Everyone + AI Fluency done — run alongside CS50x
+  {id:'cs50x',   label:'CS50x — Intro to Computer Science',     src:'Harvard / edX',               hrs:'120 hrs', quick:false, unlocks:['aiff']},
+  {id:'genai4e', label:'Generative AI for Everyone — Ng',       src:'Coursera / DeepLearning.AI',  hrs:'5 hrs',   quick:true,  unlocks:['aiff']},
+  {id:'lchain',  label:'LangChain for LLM Application Dev',     src:'learn.deeplearning.ai (free)',hrs:'4 hrs',   quick:true,  unlocks:['aiff']},
+  {id:'clapi',   label:'Building with the Claude API',          src:'Anthropic Academy',           hrs:'8 hrs',   quick:true,  unlocks:['aiff']},
+  {id:'clagent', label:'Introduction to Agent Skills',          src:'Anthropic Academy',           hrs:'5 hrs',   quick:true,  unlocks:['aiff']},
+  {id:'gda',     label:'Google Data Analytics Certificate',     src:'Coursera',                    hrs:'180 hrs', quick:false, unlocks:['aiff']},
+
+  // Available alongside CS50x once underway
+  {id:'cs50p',   label:'CS50P — Programming with Python',       src:'Harvard / edX',               hrs:'50 hrs',  quick:false, unlocks:['ai4e']},
+  {id:'cs50sql', label:'CS50 SQL — Databases with SQL',         src:'Harvard / edX',               hrs:'30 hrs',  quick:false, unlocks:['ai4e']},
+
+  // Needs Claude API done first
+  {id:'clcode',  label:'Claude Code in Action',                 src:'Anthropic Academy',           hrs:'7 hrs',   quick:true,  unlocks:['clapi']},
+  {id:'llmsys',  label:'Building Systems with ChatGPT API',     src:'learn.deeplearning.ai (free)',hrs:'4 hrs',   quick:true,  unlocks:['lchain']},
+  {id:'agents',  label:'AI Agents in LangGraph',                src:'learn.deeplearning.ai (free)',hrs:'4 hrs',   quick:true,  unlocks:['llmsys']},
+
+  // Projects — needs specific courses complete
+  {id:'proj1',   label:'PROJECT: CS50 Financial Simulator',     src:'Build after CS50x',           hrs:'build',   quick:false, unlocks:['cs50x']},
+  {id:'proj2',   label:'PROJECT: SQL Financial Dashboard',      src:'Build after CS50 SQL',        hrs:'build',   quick:false, unlocks:['cs50sql']},
+  {id:'proj5',   label:'PROJECT: Smart Invoice Analyser',       src:'Build after Claude API',      hrs:'build',   quick:false, unlocks:['clapi']},
+  {id:'proj6',   label:'PROJECT: BD Outreach Personaliser',     src:'Build after Claude API',      hrs:'build',   quick:false, unlocks:['clapi']},
+  {id:'proj7',   label:'PROJECT: Financial Health Dashboard CLI',src:'Build after Claude Code',    hrs:'build',   quick:false, unlocks:['clcode']},
+  {id:'proj8',   label:'PROJECT: tobook BD Agent',              src:'Build after Agent Skills',    hrs:'build',   quick:false, unlocks:['clagent']},
+
+  // Needs Google Data Analytics first
+  {id:'gada',    label:'Google Advanced Data Analytics',        src:'Coursera',                    hrs:'200 hrs', quick:false, unlocks:['gda']},
+  {id:'ibmda',   label:'IBM Data Analyst Certificate',          src:'Coursera',                    hrs:'174 hrs', quick:false, unlocks:['gda']},
+  {id:'pl300',   label:'Microsoft PL-300 Power BI',             src:'Microsoft Learn + exam',       hrs:'50 hrs',  quick:false, unlocks:['gda']},
+  {id:'sqladv',  label:'SQL for Data Science — UC Davis',       src:'Coursera',                    hrs:'20 hrs',  quick:false, unlocks:['gda']},
+
+  // Needs Google Advanced first
+  {id:'mlspec',  label:'ML Specialization — Andrew Ng',         src:'Coursera / DeepLearning.AI',  hrs:'90 hrs',  quick:false, unlocks:['gada']},
+  {id:'proj3',   label:'PROJECT: UK Construction SME Analyser', src:'Build after Google Advanced', hrs:'build',   quick:false, unlocks:['gada']},
+  {id:'wharton', label:'Wharton Business Analytics',            src:'Coursera',                    hrs:'120 hrs', quick:false, unlocks:['gada']},
+  {id:'proj4',   label:'PROJECT: Power BI Executive Dashboard', src:'Build after PL-300',          hrs:'build',   quick:false, unlocks:['pl300']},
+
+  // Needs ML Specialization
+  {id:'fmkt',    label:'Financial Markets — Yale / Shiller',    src:'Coursera',                    hrs:'33 hrs',  quick:false, unlocks:['mlspec']},
+  {id:'lgraph',  label:'AI Agents in LangGraph (advanced)',     src:'learn.deeplearning.ai',       hrs:'4 hrs',   quick:true,  unlocks:['agents']},
+
+  // MCP track — needs Agent Skills
+  {id:'mcpintro',label:'Introduction to MCP',                   src:'Anthropic Academy',           hrs:'9 hrs',   quick:true,  unlocks:['clagent']},
+  {id:'proj9',   label:'PROJECT: Xero MCP Server',              src:'Build after MCP Intro',       hrs:'build',   quick:false, unlocks:['mcpintro']},
+  {id:'mcpadv',  label:'MCP Advanced Topics',                   src:'Anthropic Academy',           hrs:'10 hrs',  quick:true,  unlocks:['mcpintro']},
+  {id:'proj10',  label:'PROJECT: LangChain Financial RAG',      src:'Build after LangGraph advanced',hrs:'build', quick:false, unlocks:['lgraph']},
+
+  // Later stage
+  {id:'cfi',     label:'CFI Financial Modelling & Valuation',   src:'CFI',                         hrs:'80 hrs',  quick:false, unlocks:['wharton']},
+  {id:'wharton2',label:'Wharton Entrepreneurship',              src:'Coursera',                    hrs:'100 hrs', quick:false, unlocks:['wharton']},
+  {id:'dlspec',  label:'Deep Learning Specialization — Ng',     src:'Coursera / DeepLearning.AI',  hrs:'200 hrs', quick:false, unlocks:['mlspec']},
+  {id:'proj11',  label:'PROJECT: Portfolio Analyser SaaS MVP',  src:'Build after MCP Advanced',    hrs:'build',   quick:false, unlocks:['mcpadv']},
+  {id:'proj12',  label:'PROJECT: TradeBooks Alpha',             src:'Build after Portfolio MVP',   hrs:'build',   quick:false, unlocks:['proj11']},
+];
+
+// ── PHASES DATA ──────────────────────────────────
+const PHASES = [
+  {
+    id:'p0', name:'Foundation Sprint', period:'Months 1–3', color:'#1d4ed8',
+    courses:[
+      {id:'ai4e',  name:'AI for Everyone — Andrew Ng',        source:'Coursera / DeepLearning.AI', hours:'6 hrs',  priority:'essential'},
+      {id:'aiff',  name:'AI Fluency: Framework & Foundations', source:'Anthropic Academy',         hours:'3 hrs',  priority:'essential'},
+      {id:'cs50x', name:'CS50x — Intro to Computer Science',  source:'Harvard / edX',              hours:'120 hrs',priority:'essential'},
+    ],
+    projects:[
+      {id:'proj1',name:'CS50 Final Project — Financial Simulator',repo:'cs50-portfolio-simulator',
+       desc:'Python web app — Harvard CS50 final project. Live demo + GitHub.',
+       when:'After completing CS50x in full'},
+    ],
+    weekFocus:[
+      {title:'AI for Everyone',                    detail:'Complete first — 6 hours, highest immediate ROI',                  target:'Complete', hours:'6 hrs'},
+      {title:'AI Fluency: Framework & Foundations',detail:'Anthropic Academy — do alongside AI for Everyone',                 target:'Complete', hours:'3 hrs'},
+      {title:'Begin CS50x',                        detail:'Start Week 0 and Week 1 — fundamentals and algorithmic thinking',  target:'Week 1 complete', hours:'5 hrs'},
+    ],
+    weekGoal:'By Sunday: AI for Everyone ✓, AI Fluency ✓, CS50x Week 1 underway. Two Anthropic certificates on LinkedIn.',
+  },
+  {
+    id:'p1', name:'Data Analytics Core', period:'Months 2–6', color:'#0d9488',
+    courses:[
+      {id:'cs50p',  name:'CS50P — Programming with Python', source:'Harvard / edX',    hours:'50 hrs', priority:'essential'},
+      {id:'cs50sql',name:'CS50 SQL — Databases with SQL',   source:'Harvard / edX',    hours:'30 hrs', priority:'essential'},
+      {id:'gda',    name:'Google Data Analytics Certificate',source:'Coursera',         hours:'180 hrs',priority:'essential'},
+      {id:'clapi',  name:'Building with the Claude API',    source:'Anthropic Academy', hours:'8 hrs',  priority:'essential'},
+    ],
+    projects:[
+      {id:'proj2',name:'SQL Financial Dashboard',  repo:'sql-financial-dashboard',
+       desc:'Complex SQL on real financial data — management reports, variance analysis.',
+       when:'After completing CS50 SQL'},
+      {id:'proj5',name:'Smart Invoice Analyser',   repo:'invoice-analyser',
+       desc:'Claude API + Python. Ingests Xero CSVs, returns plain-English financial summary.',
+       when:'After completing Building with the Claude API'},
+      {id:'proj6',name:'BD Outreach Personaliser', repo:'bd-outreach-personaliser',
+       desc:'AI-powered LinkedIn outreach from prospect details. Claude API.',
+       when:'After completing Building with the Claude API (can build alongside Invoice Analyser)'},
+    ],
+    weekFocus:[
+      {title:'CS50x — continue',      detail:'Aim for 2 weeks of content per week',                         target:'Week 3–4 complete', hours:'8 hrs'},
+      {title:'CS50P — begin',         detail:'Python deep-dive — start once CS50x is past week 4',          target:'First 2 modules',   hours:'5 hrs'},
+      {title:'Google Data Analytics', detail:'Begin Foundation of Data, Data Analytics, and the Ecosystem', target:'Module 1 complete', hours:'4 hrs'},
+    ],
+    weekGoal:'By Sunday: CS50 progressing steadily, CS50P Python basics started, Google Data Analytics enrolled and begun.',
+  },
+  {
+    id:'p2', name:'Data + AI Crossover', period:'Months 5–10', color:'#7c3aed',
+    courses:[
+      {id:'gada',  name:'Google Advanced Data Analytics',  source:'Coursera',                   hours:'200 hrs',priority:'essential'},
+      {id:'ibmda', name:'IBM Data Analyst Certificate',    source:'Coursera',                   hours:'174 hrs',priority:'high'},
+      {id:'mlspec',name:'ML Specialization — Andrew Ng',  source:'Coursera / DeepLearning.AI', hours:'90 hrs', priority:'essential'},
+      {id:'clcode',name:'Claude Code in Action',           source:'Anthropic Academy',           hours:'7 hrs',  priority:'essential'},
+    ],
+    projects:[
+      {id:'proj3',name:'UK Construction SME Financial Analyser',repo:'uk-construction-sme-analysis',
+       desc:'Pandas + Companies House public data. Sector health report.',
+       when:'After completing Google Advanced Data Analytics'},
+      {id:'proj7',name:'Financial Health Dashboard CLI',         repo:'financial-health-cli',
+       desc:'CLI tool: CSV in → AI-generated financial health report out.',
+       when:'After completing Claude Code in Action'},
+    ],
+    weekFocus:[
+      {title:'Google Advanced Data Analytics', detail:'Python, regression, ML fundamentals',       target:'Module 2 complete',  hours:'8 hrs'},
+      {title:'Machine Learning Specialization',detail:'Course 1: Supervised learning foundations', target:'Week 2 of Course 1', hours:'6 hrs'},
+      {title:'Claude Code in Action',          detail:'Integrate AI into Cursor workflow',          target:'Complete course',    hours:'7 hrs'},
+    ],
+    weekGoal:'By Sunday: Google Advanced underway, ML Specialization Course 1 in progress, Claude Code complete.',
+  },
+  {
+    id:'p3', name:'AI & Agents', period:'Months 9–14', color:'#7c3aed',
+    courses:[
+      {id:'genai4e',name:'Generative AI for Everyone — Ng',   source:'Coursera / DeepLearning.AI', hours:'5 hrs',  priority:'essential'},
+      {id:'lchain', name:'LangChain for LLM Application Dev', source:'learn.deeplearning.ai (free)',hours:'4 hrs',  priority:'high'},
+      {id:'llmsys', name:'Building Systems with ChatGPT API', source:'learn.deeplearning.ai (free)',hours:'4 hrs',  priority:'high'},
+      {id:'agents', name:'AI Agents in LangGraph',            source:'learn.deeplearning.ai (free)',hours:'4 hrs',  priority:'high'},
+      {id:'clagent',name:'Introduction to Agent Skills',      source:'Anthropic Academy',           hours:'5 hrs',  priority:'essential'},
+      {id:'pl300',  name:'Microsoft PL-300 Power BI',         source:'Microsoft Learn + exam',       hours:'50 hrs', priority:'high'},
+    ],
+    projects:[
+      {id:'proj4',name:'Power BI Executive Dashboard', repo:'power-bi-financial-dashboard',
+       desc:'PL-300 capstone. Multi-page, DAX, row-level security. Published to PBI gallery.',
+       when:'After completing PL-300 only — do not wait for other Phase 3 courses'},
+      {id:'proj8',name:'tobook BD Agent',               repo:'tobook-bd-agent',
+       desc:'Autonomous BD workflow. Scores prospects, drafts outreach, logs to CSV.',
+       when:'After completing Introduction to Agent Skills only'},
+    ],
+    weekFocus:[
+      {title:'Generative AI for Everyone', detail:'5 hours — do this in one sitting',  target:'Complete',    hours:'5 hrs'},
+      {title:'LangChain for LLM App Dev',  detail:'Free course at learn.deeplearning.ai',target:'Complete',  hours:'4 hrs'},
+      {title:'Agent Skills (Anthropic)',   detail:'Foundation for BD Agent project',    target:'Modules 1–3', hours:'3 hrs'},
+    ],
+    weekGoal:'By Sunday: Generative AI for Everyone ✓, LangChain ✓. Three more short courses queued.',
+  },
+  {
+    id:'p4', name:'MCP & Advanced Builds', period:'Months 13–20', color:'#1d4ed8',
+    courses:[
+      {id:'mcpintro',name:'Introduction to MCP',               source:'Anthropic Academy',  hours:'9 hrs',  priority:'essential'},
+      {id:'mcpadv',  name:'MCP Advanced Topics',               source:'Anthropic Academy',  hours:'10 hrs', priority:'essential'},
+      {id:'lgraph',  name:'AI Agents in LangGraph (advanced)', source:'learn.deeplearning.ai',hours:'4 hrs', priority:'high'},
+      {id:'fmkt',    name:'Financial Markets — Yale / Shiller',source:'Coursera',           hours:'33 hrs', priority:'high'},
+      {id:'wharton', name:'Wharton Business Analytics',        source:'Coursera',           hours:'120 hrs',priority:'high'},
+    ],
+    projects:[
+      {id:'proj9', name:'Xero MCP Server',         repo:'xero-mcp-server',
+       desc:'Custom Python MCP server. Live Xero API integration. Plain-English financial queries.',
+       when:'After completing Introduction to MCP only — do not wait for Advanced Topics'},
+      {id:'proj10',name:'LangChain Financial RAG', repo:'financial-rag-system',
+       desc:'RAG on financial documents. Vector DB. Q&A over earnings calls, reports, filings.',
+       when:'After completing AI Agents in LangGraph (advanced)'},
+    ],
+    weekFocus:[
+      {title:'Introduction to MCP',      detail:'The rarest skill in this roadmap — focus here', target:'Modules 1–4', hours:'9 hrs'},
+      {title:'Financial Markets (Yale)', detail:'Start alongside MCP for variety',                target:'Week 1–2',   hours:'4 hrs'},
+    ],
+    weekGoal:'By Sunday: MCP Intro well underway. Understand MCP primitives: tools, resources, prompts.',
+  },
+  {
+    id:'p5', name:'SaaS & Mastery', period:'Months 18–30', color:'#d97706',
+    courses:[
+      {id:'cfi',     name:'CFI Financial Modelling & Valuation',source:'CFI',                        hours:'80 hrs', priority:'high'},
+      {id:'wharton2',name:'Wharton Entrepreneurship',           source:'Coursera',                   hours:'100 hrs',priority:'high'},
+      {id:'sqladv',  name:'SQL for Data Science — UC Davis',    source:'Coursera',                   hours:'20 hrs', priority:'high'},
+      {id:'dlspec',  name:'Deep Learning Specialization — Ng',  source:'Coursera / DeepLearning.AI', hours:'200 hrs',priority:'optional'},
+    ],
+    projects:[
+      {id:'proj11',name:'Portfolio Analyser SaaS MVP', repo:'portfolio-analyser-mvp',
+       desc:'Full web app. Live on Render. Users input holdings → AI risk/return report.',
+       when:'After completing MCP Advanced Topics'},
+      {id:'proj12',name:'TradeBooks Alpha',            repo:'tradebooks-alpha',
+       desc:'Construction finance intelligence. Xero MCP + sector benchmarks + auto reports.',
+       when:'After Portfolio Analyser MVP is live and working'},
+    ],
+    weekFocus:[
+      {title:'Portfolio Analyser MVP',  detail:'Your headline project — ship it',         target:'Core feature complete', hours:'10 hrs'},
+      {title:'CFI Financial Modelling', detail:'Deepen CIMA with quantitative modelling', target:'Module 1–2',           hours:'4 hrs'},
+    ],
+    weekGoal:'By Sunday: Portfolio Analyser has a working front-end. CFI modelling started.',
+  },
+  {
+    id:'cima', name:'CIMA — Parallel Track', period:'Throughout all phases', color:'#d97706', isCima:true,
+    courses:[
+      {id:'cima-ba2', name:'CIMA CertBA — BA2',source:'CIMA / self-study',hours:'40 hrs',priority:'cima'},
+      {id:'cima-ba3', name:'CIMA CertBA — BA3',source:'CIMA / self-study',hours:'40 hrs',priority:'cima'},
+      {id:'cima-ba4', name:'CIMA CertBA — BA4',source:'CIMA / self-study',hours:'40 hrs',priority:'cima'},
+      {id:'cima-op1', name:'CIMA Operational — E1',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-op2', name:'CIMA Operational — P1',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-op3', name:'CIMA Operational — F1',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-opcs',name:'CIMA Operational — Case Study',source:'CIMA Professional',hours:'60 hrs',priority:'cima'},
+      {id:'cima-mg1', name:'CIMA Management — E2',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-mg2', name:'CIMA Management — P2',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-mg3', name:'CIMA Management — F2',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-mgcs',name:'CIMA Management — Case Study',source:'CIMA Professional',hours:'60 hrs',priority:'cima'},
+      {id:'cima-st1', name:'CIMA Strategic — E3',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-st2', name:'CIMA Strategic — P3',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-st3', name:'CIMA Strategic — F3',source:'CIMA Professional',hours:'80 hrs',priority:'cima'},
+      {id:'cima-stcs',name:'CIMA Strategic — Case Study',source:'CIMA Professional',hours:'60 hrs',priority:'cima'},
+    ],
+    projects:[], weekFocus:[], weekGoal:'',
+  },
+];
+
+const BLUEPRINT_SECTIONS = [
+  {title:'The Four Pillars — Why This Combination Wins',intro:'Most people pick one lane. The plan below has you owning four simultaneously. The compounding effect of holding all four is what makes you genuinely rare — and very highly paid.',pillars:[{color:'#1d4ed8',title:'💼 Finance & Business Accounting',desc:'CIMA CGMA · Financial modelling · Management reporting · Strategic CFO thinking. The credibility layer. Average UK salary for CIMA-qualified professionals: £85,361.'},{color:'#0d9488',title:'📊 Data Analytics & Engineering',desc:'SQL · Python · Pandas · Power BI · Tableau · Statistical analysis · ML fundamentals. The analytical engine. Finance-focused data skills are among the highest-paid in the market.'},{color:'#7c3aed',title:'🤖 AI & Machine Learning',desc:'Claude API · LLMs · Agents · MCP · Prompt engineering · RAG · ML fundamentals. The multiplier. AI fluency commands a 56% salary premium over peers in the same role without it.'},{color:'#d97706',title:'💻 Software Engineering & Deployment',desc:'Python · GitHub · REST APIs · Cloud deployment · CLI tools · Web apps. The delivery mechanism. Basic software engineering ability turns everything else into products — and products into income.'}]},
+  {title:'CIMA — The Long Game',intro:'CIMA is now the most popular accounting qualification in the UK (2025 GAAPweb Survey). The 2026 syllabus upgrade explicitly adds AI, digital finance, and business partnering. Do not stop at CertBA.',table:[['Now → 6 months','Complete remaining CertBA papers (BA2, BA3, BA4)'],['6–18 months','CIMA Operational Level — 3 objective tests + 1 case study'],['18–30 months','CIMA Management Level — 3 objective tests + 1 case study'],['30+ months','CIMA Strategic Level — 3 objective tests + 1 case study + experience submission → CGMA']],callout:'Run CIMA alongside the technical roadmap. Budget ~5 hours per week for CIMA separately from the 10 hours for everything else.'},
+  {title:'The Full Course Sequence',intro:'Every course, in the right order. Phases overlap — start the next phase before the current one is fully complete.',phases:[{period:'Phase 0 — Months 1–3',items:['AI for Everyone (Andrew Ng) — 6 hours, do in Week 1','AI Fluency: Framework & Foundations (Anthropic)','CS50x — Harvard Intro to Computer Science','→ Project: CS50 Financial Simulator']},{period:'Phase 1 — Months 2–6',items:['CS50P — Programming with Python','CS50 SQL — Databases with SQL','Google Data Analytics Professional Certificate','Building with the Claude API (Anthropic)','→ Projects: SQL Financial Dashboard, Smart Invoice Analyser, BD Outreach Personaliser']},{period:'Phase 2 — Months 5–10',items:['Google Advanced Data Analytics','IBM Data Analyst Certificate','Machine Learning Specialization (Andrew Ng / Stanford)','Claude Code in Action (Anthropic)','→ Projects: UK Construction SME Analyser, Financial Health Dashboard CLI']},{period:'Phase 3 — Months 9–14',items:['Generative AI for Everyone (Andrew Ng)','LangChain for LLM Application Development','Building Systems with ChatGPT API','AI Agents in LangGraph','Introduction to Agent Skills (Anthropic)','Microsoft PL-300 Power BI certification','→ Projects: Power BI Executive Dashboard, tobook BD Agent']},{period:'Phase 4 — Months 13–20',items:['Introduction to MCP (Anthropic)','MCP Advanced Topics (Anthropic)','Financial Markets / Yale (Coursera)','Wharton Business Analytics (Coursera)','→ Projects: Xero MCP Server, LangChain Financial RAG System']},{period:'Phase 5 — Months 18–30',items:['CFI Financial Modelling & Valuation','Wharton Entrepreneurship (Coursera)','SQL for Data Science / UC Davis','Deep Learning Specialization — optional deep technical track','→ Projects: Portfolio Analyser SaaS MVP (live), TradeBooks Alpha']}]},
+  {title:'The 12 Portfolio Projects',intro:'Every project builds on the skills from its corresponding phase. The portfolio tells one coherent story: AI-powered financial and data intelligence tools.',table:[['1.  cs50-portfolio-simulator','Python web app — CS50 final project. Shows CS foundations + finance domain.'],['2.  sql-financial-dashboard','Complex SQL on real financial data. Management reports, variance analysis.'],['3.  uk-construction-sme-analysis','Pandas + public Companies House data. Sector intelligence report.'],['4.  power-bi-financial-dashboard','PL-300 capstone. Multi-page, DAX measures, row-level security. Published to gallery.'],['5.  invoice-analyser','Claude API + Python. Xero CSV → plain-English financial summary.'],['6.  bd-outreach-personaliser','AI-powered personalised outreach from prospect details.'],['7.  financial-health-cli','CLI tool: transaction CSV in → AI-generated financial health report out.'],['8.  tobook-bd-agent','Autonomous BD workflow. Scores ICP, drafts outreach, logs to CSV.'],['9.  xero-mcp-server','Custom MCP server. Live Xero API. Plain-English financial queries in Claude.'],['10. financial-rag-system','LangChain RAG on financial documents. Vector DB. Q&A over reports and filings.'],['11. portfolio-analyser-mvp','Live SaaS on Render. Investment portfolio → AI risk/return analysis.'],['12. tradebooks-alpha','Construction finance SaaS. Xero MCP + sector benchmarks + auto reporting.']]},
+  {title:'The Master Timeline',intro:'Designed to run alongside full-time work and CIMA. ~10 hours per week for the technical roadmap, ~5 hours separately for CIMA.',table:[['Months 1–3','Foundation Sprint: AI for Everyone, AI Fluency, CS50x. Projects 1–2 begun.'],['Months 2–6','Data Core: CS50P, CS50 SQL, Google Data Analytics, Claude API. Projects 2, 5, 6.'],['Months 5–10','Crossover: Google Advanced, IBM Data Analyst, ML Specialization, Claude Code. Projects 3, 7.'],['Months 9–14','AI & Agents: Generative AI, LangChain, DeepLearning.AI shorts, Agent Skills, PL-300. Projects 4, 8.'],['Months 13–20','MCP & Advanced: MCP Intro + Advanced, Yale Finance, Wharton. Projects 9, 10.'],['Months 18–30','SaaS & Mastery: CFI Modelling, Wharton Entrepreneurship, SQL Advanced, DL (optional). Projects 11, 12.'],['Throughout','CIMA: CertBA papers → Operational → Management → Strategic (CGMA). ~5hrs/wk.']],callout:'Total cost: ~£2,000–3,000 over 2–3 years (Coursera Plus ~£294/yr, CS50 cert £120, CIMA exam fees). Less than one semester of part-time university.'},
+];
+
+// ── STATE ────────────────────────────────────────
+let state = {completed:{}, weekChecks:{}, cima:'certba-ba2'};
+function loadState(){ try{ const s=localStorage.getItem('masterplan_v3'); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
+function saveState(){ localStorage.setItem('masterplan_v3',JSON.stringify(state)); }
+function isComplete(id){ return !!state.completed[id]; }
+
+// ── MODAL ────────────────────────────────────────
+let pendingId=null;
+function openModal(id){ pendingId=id; document.getElementById('modalDate').value=new Date().toISOString().split('T')[0]; document.getElementById('dateModal').classList.add('open'); }
+function closeModal(){ document.getElementById('dateModal').classList.remove('open'); pendingId=null; }
+function confirmComplete(){
+  const d=document.getElementById('modalDate').value;
+  if(pendingId){ state.completed[pendingId]=d||new Date().toISOString().split('T')[0]; saveState(); render(); }
+  closeModal();
+}
+function toggleComplete(id){ if(isComplete(id)){ delete state.completed[id]; saveState(); render(); } else { openModal(id); } }
+
+// ── WEEK CHECKS ──────────────────────────────────
+function toggleWeekCheck(idx){
+  state.weekChecks=state.weekChecks||{};
+  state.weekChecks['wc_'+idx]=!state.weekChecks['wc_'+idx];
+  saveState(); render();
+}
+
+// ── CALCULATIONS ─────────────────────────────────
+function getStats(){
+  const allC=PHASES.flatMap(p=>p.courses).filter(c=>c.priority!=='cima');
+  const allP=PHASES.flatMap(p=>p.projects);
+  const dC=allC.filter(c=>isComplete(c.id)).length, dP=allP.filter(p=>isComplete(p.id)).length;
+  const done=dC+dP, total=allC.length+allP.length;
+  return {doneCourses:dC,totalCourses:allC.length,doneProjects:dP,totalProjects:allP.length,doneAll:done,totalAll:total,pct:total?Math.round(done/total*100):0};
+}
+function getCurrentPhase(){
+  for(const ph of PHASES){ if(ph.isCima) continue; const all=[...ph.courses,...ph.projects]; if(all.filter(x=>isComplete(x.id)).length<all.length) return ph; }
+  return PHASES[PHASES.length-2];
+}
+function getPhaseProgress(ph){ const all=[...ph.courses,...ph.projects],done=all.filter(x=>isComplete(x.id)).length; return {done,total:all.length,pct:all.length?Math.round(done/all.length*100):0}; }
+function getNextItems(n=5){
+  const res=[];
+  for(const item of SEQ){
+    if(isComplete(item.id)) continue;
+    if(item.id.startsWith('cima-')) continue;
+    if(item.unlocks.every(u=>isComplete(u))) res.push(item);
+    if(res.length>=n) break;
+  }
+  return res;
+}
+
+// ── RENDER ───────────────────────────────────────
+function render(){
+  const stats=getStats(), cur=getCurrentPhase();
+  document.getElementById('stat-courses').textContent=stats.doneCourses;
+  document.getElementById('stat-courses-sub').textContent=`of ${stats.totalCourses} total`;
+  document.getElementById('stat-projects').textContent=stats.doneProjects;
+  const pe=document.getElementById('stat-phase'); pe.textContent=cur?cur.name:'—'; pe.style.fontSize='15px';
+  document.getElementById('stat-phase-sub').textContent=cur?cur.period:'—';
+  const cm={'certba-ba2':'CertBA BA2','certba-ba3':'CertBA BA3','certba-ba4':'CertBA BA4','certba-done':'CertBA ✓','op-e1':'Op E1','op-p1':'Op P1','op-f1':'Op F1','op-case':'Op Case','op-done':'Operational ✓','mg-e2':'Mgmt E2','mg-done':'Management ✓','st-e3':'Strategic E3','st-done':'CGMA ✓ 🎉'};
+  document.getElementById('stat-cima').textContent=cm[state.cima]||'CertBA';
+  document.getElementById('overallPct').textContent=stats.pct+'%';
+  document.getElementById('overallBar').style.width=stats.pct+'%';
+  renderWeekFocus(cur); renderNextTasks();
+  document.getElementById('dashPhases').innerHTML=PHASES.map(ph=>renderPhaseCard(ph,ph.id===cur?.id,ph.id===cur?.id)).join('');
+  document.getElementById('allPhases').innerHTML=PHASES.map(ph=>renderPhaseCard(ph,true,false)).join('');
+  renderBlueprint();
+  document.getElementById('cimaSelect').value=state.cima;
+}
+
+function renderWeekFocus(phase){
+  if(!phase||!phase.weekFocus?.length) return;
+  const now=new Date();
+  document.getElementById('weekSubLabel').textContent=`Week of ${now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${phase.name}`;
+  state.weekChecks=state.weekChecks||{};
+  document.getElementById('weekItems').innerHTML=phase.weekFocus.map((item,i)=>{
+    const checked=!!state.weekChecks['wc_'+i];
+    return `<div class="week-item ${checked?'week-done':''}">
+      <div class="week-check ${checked?'checked':''}" onclick="toggleWeekCheck(${i})"></div>
+      <div class="week-item-dot" style="background:${phase.color}"></div>
+      <div class="week-item-content"><div class="week-item-title">${item.title}</div><div class="week-item-detail">${item.detail}</div></div>
+      <div class="week-item-target">${item.hours}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('weekEndGoal').innerHTML=`<strong>🏁 End-of-week goal:</strong> ${phase.weekGoal}`;
+}
+
+function renderNextTasks(){
+  const items=getNextItems(5);
+  if(!items.length){ document.getElementById('nextItems').innerHTML='<div style="padding:12px;color:var(--text3);font-size:13px">All available tasks complete. Outstanding work!</div>'; return; }
+  document.getElementById('nextItems').innerHTML=items.map((item,i)=>`
+    <div class="next-item">
+      <span class="next-item-num">${String(i+1).padStart(2,'0')}</span>
+      <div>
+        <div class="next-item-name">${item.label}${item.quick?'<span class="next-quick-badge">Quick win</span>':''}</div>
+        <div class="next-item-source">${item.src}</div>
+      </div>
+      <div class="next-item-hours">${item.hrs}</div>
+    </div>`).join('');
+}
+
+function tagHtml(p){
+  if(p==='done') return '<span class="course-tag tag-done">Done</span>';
+  if(p==='essential') return '<span class="course-tag tag-essential">Essential</span>';
+  if(p==='high') return '<span class="course-tag tag-high">High</span>';
+  if(p==='cima') return '<span class="course-tag" style="background:rgba(217,119,6,0.2);color:#fcd34d">CIMA</span>';
+  return '';
+}
+
+function renderPhaseCard(ph, expanded, showActive){
+  const prog=getPhaseProgress(ph), isCur=getCurrentPhase()?.id===ph.id, isDone=prog.pct===100, idx=PHASES.indexOf(ph);
+  const courses=ph.courses.map(c=>{
+    const done=isComplete(c.id);
+    return `<div class="course-row ${done?'completed':''}">
+      <div class="course-check-cell"><div class="course-check ${done?'checked':''}" onclick="toggleComplete('${c.id}')"></div></div>
+      <div class="course-info"><div class="course-name">${c.name} ${tagHtml(done?'done':c.priority)}</div><div class="course-source">${c.source}</div></div>
+      <div class="course-right"><div class="course-hours">${c.hours}</div>${done?`<div class="course-completed-date">✓ ${state.completed[c.id]}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  const projs=ph.projects.map(p=>{
+    const done=isComplete(p.id);
+    return `<div class="project-row ${done?'completed':''}">
+      <div class="project-check-cell"><div class="project-check ${done?'checked':''}" onclick="toggleComplete('${p.id}')"></div></div>
+      <div class="project-info"><div class="project-name">🔨 ${p.name}</div><div class="project-repo">${p.repo}</div><div class="project-desc">${p.desc}</div><div class="project-when">${p.when}</div></div>
+      <div class="course-right">${done?`<div class="course-completed-date">✓ ${state.completed[p.id]}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  return `<div class="phase-card ${isCur?'current':''} ${isDone?'complete':''} ${expanded?'open':''}" id="phase-${ph.id}">
+    <div class="phase-header" onclick="togglePhase('${ph.id}')">
+      <div class="phase-badge" style="background:${ph.color}20;color:${ph.color}">${isDone?'✓':idx+1}</div>
+      <div class="phase-meta"><div class="phase-name">${ph.name}</div><div class="phase-period">${ph.period}</div></div>
+      <div class="phase-right">
+        <div class="phase-pct-label" style="color:${ph.color}">${prog.pct}%</div>
+        <div class="phase-progress-mini"><div class="phase-progress-mini-fill" style="width:${prog.pct}%;background:${ph.color}"></div></div>
+        <div class="phase-chevron">▶</div>
+      </div>
+    </div>
+    <div class="phase-body">
+      <div class="section-label">Courses</div><div class="course-list">${courses}</div>
+      ${projs?`<div class="section-label">Projects</div><div class="course-list">${projs}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderBlueprint(){
+  let html='';
+  BLUEPRINT_SECTIONS.forEach(sec=>{
+    html+=`<div class="bp-section"><div class="bp-section-title">${sec.title}</div><div class="bp-intro">${sec.intro}</div>`;
+    if(sec.pillars) sec.pillars.forEach(p=>{ html+=`<div class="bp-pillar" style="border-color:${p.color}"><div class="bp-pillar-title" style="color:${p.color}">${p.title}</div><div class="bp-pillar-desc">${p.desc}</div></div>`; });
+    if(sec.table){ html+=`<table class="bp-table"><thead><tr>`; html+=sec.title.includes('Timeline')||sec.title.includes('CIMA')?'<th>Period</th><th>What\'s happening</th>':sec.title.includes('Project')?'<th>Repository</th><th>What it demonstrates</th>':'<th>Course</th><th>Detail</th>'; html+=`</tr></thead><tbody>`; sec.table.forEach(r=>{ html+=`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`; }); html+=`</tbody></table>`; }
+    if(sec.phases) sec.phases.forEach(ph=>{ html+=`<div class="bp-phase-block"><div class="bp-phase-title">${ph.period}</div><ul class="bp-list">${ph.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`; });
+    if(sec.callout) html+=`<div class="bp-callout"><strong>Note: </strong>${sec.callout}</div>`;
+    html+=`</div>`;
+  });
+  document.getElementById('blueprintContent').innerHTML=html;
+}
+
+// ── UI ───────────────────────────────────────────
+function togglePhase(id){ document.querySelectorAll(`#phase-${id}`).forEach(el=>el.classList.toggle('open')); }
+function showView(view,btn){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); document.getElementById('view-'+view).classList.add('active'); if(btn) btn.classList.add('active'); }
+function saveCima(){ state.cima=document.getElementById('cimaSelect').value; saveState(); render(); }
+function resetAll(){ if(confirm('Reset all progress? This cannot be undone.')){ state.completed={}; state.weekChecks={}; saveState(); render(); } }
+function exportData(){ const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='masterplan-progress.json'; a.click(); }
+
+// ── INIT ─────────────────────────────────────────
+function initApp(){
+  loadState();
+  const h=new Date().getHours();
+  document.getElementById('timeGreeting').textContent=h<12?'morning':h<17?'afternoon':'evening';
+  document.getElementById('navDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  render();
+}
+if(localStorage.getItem('mp_auth')==='1') initApp();
+</script>
+</body>
+</html>
